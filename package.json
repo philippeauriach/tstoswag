@@ -1,0 +1,29 @@
+{
+  "name": "swg-decorator-types",
+  "version": "0.0.1",
+  "description": "Decorators to generate swagger definition based on typescript typings",
+  "main": "index.js",
+  "author": "Philippe Auriach",
+  "license": "MIT",
+  "scripts": {
+    "test": "jest",
+    "test:watch": "jest --watch"
+  },
+  "dependencies": {
+    "ts-json-schema-generator": "^1.2.0",
+    "typescript": "^5.0.2"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.0",
+    "@types/json-schema": "^7.0.11",
+    "@typescript-eslint/eslint-plugin": "^5.56.0",
+    "@typescript-eslint/parser": "^5.56.0",
+    "eslint": "^8.36.0",
+    "eslint-config-prettier": "^8.8.0",
+    "eslint-plugin-import": "^2.27.5",
+    "jest": "^29.5.0",
+    "openapi-types": "^12.1.0",
+    "prettier": "^2.8.6",
+    "ts-jest": "^29.0.5"
+  }
+}
