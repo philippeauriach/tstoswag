@@ -2,7 +2,7 @@ import fs from 'fs'
 import path from 'path'
 
 import { processProgram } from '../src/processfiles'
-import { generateSwagger } from '../src/swaggerGenerator'
+import { generateSwagger } from '../src/swagger'
 
 describe('Should process types', () => {
   it('should process types', () => {

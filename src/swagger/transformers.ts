@@ -1,9 +1,12 @@
 import { JSONSchema7, JSONSchema7Definition } from 'json-schema'
 import { OpenAPIV3, OpenAPIV3_1 } from 'openapi-types'
 
-import { JSONSchema, ParsedMethod } from './types'
+import { defaultResponseDescriptionFromCode } from './utils'
+import { JSONSchema, ParsedMethod } from '../types'
 
-const generatePathParams = (pathParams?: string[]): (OpenAPIV3_1.ParameterObject | OpenAPIV3_1.ReferenceObject)[] => {
+export const generatePathParams = (
+  pathParams?: string[],
+): (OpenAPIV3_1.ParameterObject | OpenAPIV3_1.ReferenceObject)[] => {
   if (!pathParams) {
     return []
   }
@@ -15,7 +18,7 @@ const generatePathParams = (pathParams?: string[]): (OpenAPIV3_1.ParameterObject
   }))
 }
 
-const generateQueryParams = (
+export const generateQueryParams = (
   queryParam: ParsedMethod['requestQueryParams'] | undefined,
   schema: JSONSchema,
 ): (OpenAPIV3_1.ParameterObject | OpenAPIV3_1.ReferenceObject)[] => {
@@ -51,7 +54,7 @@ const generateQueryParams = (
   })
 }
 
-const getRequestBody = (
+export const generateRequestBody = (
   requestBody?: ParsedMethod['requestBody'],
 ): (OpenAPIV3_1.ReferenceObject | OpenAPIV3.RequestBodyObject) | undefined => {
   if (!requestBody) {
@@ -68,34 +71,7 @@ const getRequestBody = (
   }
 }
 
-const defaultResponseDescriptionFromCode = (code: string) => {
-  switch (code) {
-    case '200':
-      return 'OK'
-    case '201':
-      return 'Created'
-    case '204':
-      return 'No Content'
-    case '400':
-      return 'Bad Request'
-    case '401':
-      return 'Unauthorized'
-    case '403':
-      return 'Forbidden'
-    case '404':
-      return 'Not Found'
-    case '409':
-      return 'Conflict'
-    case '418':
-      return "I'm a teapot"
-    case '500':
-      return 'Internal Server Error'
-    default:
-      return undefined
-  }
-}
-
-const getResponses = (
+export const generateResponses = (
   responses?: ParsedMethod['responses'],
 ): OpenAPIV3.ResponsesObject & OpenAPIV3_1.ResponsesObject => {
   if (!responses) {
@@ -120,7 +96,7 @@ const getResponses = (
   )
 }
 
-const schemaPropertyToOpenAPIV3Property = (property?: JSONSchema7): OpenAPIV3.SchemaObject | undefined => {
+export const schemaPropertyToOpenAPIV3Property = (property?: JSONSchema7): OpenAPIV3.SchemaObject | undefined => {
   if (!property) {
     return undefined
   }
@@ -169,7 +145,7 @@ const schemaPropertyToOpenAPIV3Property = (property?: JSONSchema7): OpenAPIV3.Sc
   console.error('property not handled yet, ignoring', property)
 }
 
-const getSwaggerSchemaFromDefinition = (
+export const getSwaggerSchemaFromDefinition = (
   definition: JSONSchema7Definition,
 ): OpenAPIV3_1.SchemaObject | OpenAPIV3_1.ReferenceObject | undefined => {
   if (typeof definition === 'boolean') {
@@ -232,7 +208,7 @@ const getSwaggerSchemaFromDefinition = (
   return {}
 }
 
-const getSwaggerSchemas = (schema: JSONSchema): OpenAPIV3_1.ComponentsObject['schemas'] => {
+export const generateSwaggerSchemas = (schema: JSONSchema): OpenAPIV3_1.ComponentsObject['schemas'] => {
   if (!schema.definitions) {
     return {}
   }
@@ -246,53 +222,4 @@ const getSwaggerSchemas = (schema: JSONSchema): OpenAPIV3_1.ComponentsObject['sc
     },
     {},
   )
-}
-
-export const generateSwagger = ({ methods, schema }: { methods: ParsedMethod[]; schema: JSONSchema }) => {
-  const methodsGroupedByPath = methods.reduce<Record<string, ParsedMethod[]>>((acc, method) => {
-    if (!method.path) {
-      return acc
-    }
-    if (!acc[method.path]) {
-      acc[method.path] = []
-    }
-    acc[method.path].push(method)
-    return acc
-  }, {})
-
-  const document: OpenAPIV3_1.Document = {
-    openapi: '3.1.0',
-    info: {
-      //TODO: add some options to configure this
-      title: 'API',
-      version: '1.0.0',
-      description: 'API',
-    },
-    paths: Object.entries(methodsGroupedByPath).reduce<OpenAPIV3_1.PathsObject>((acc, [path, methods]) => {
-      acc[path] = methods.reduce<OpenAPIV3_1.PathItemObject>((acc, method) => {
-        if (!method.method) {
-          return acc
-        }
-        acc[method.method.toLowerCase() as OpenAPIV3_1.HttpMethods] = {
-          //TODO: find a way to pass summary and description from jsdoc ?
-          // summary: '',
-          // description: '',
-          tags: method.tags,
-          parameters: [
-            ...generatePathParams(method.pathParams),
-            ...generateQueryParams(method.requestQueryParams, schema),
-          ],
-          requestBody: getRequestBody(method.requestBody),
-          responses: getResponses(method.responses),
-        }
-        return acc
-      }, {})
-      return acc
-    }, {}),
-    components: {
-      schemas: getSwaggerSchemas(schema),
-    },
-  }
-
-  return document
 }
