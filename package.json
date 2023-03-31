@@ -1,12 +1,16 @@
 {
-  "name": "swg-decorator-types",
+  "name": "tstoswag",
   "version": "0.0.1",
   "description": "Decorators to generate swagger definition based on typescript typings",
   "main": "index.js",
   "author": "Philippe Auriach",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/philippeauriach/tstoswag.git"
+  },
   "bin": {
-    "tswag": "bin/tswag.js"
+    "tstoswag": "bin/tstoswag.js"
   },
   "scripts": {
     "test": "jest",

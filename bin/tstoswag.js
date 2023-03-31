@@ -8,7 +8,7 @@ const { program } = require('commander')
 
 const { processProgram, generateSwagger } = require('../dist/index')
 
-program.name('tswag').description('CLI to generate swagger documentation from typescript files').version('0.0.1')
+program.name('tstoswag').description('CLI to generate swagger documentation from typescript files').version('0.0.1')
 
 program.requiredOption('-f, --file <char>', 'Path to the typescript file')
 program.option('-o, --output <char>', 'Path to the output directory, default to ./swagger', 'swagger')
