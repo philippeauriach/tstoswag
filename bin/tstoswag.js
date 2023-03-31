@@ -39,6 +39,6 @@ const swaggerDefinition = generateSwagger({
   },
 })
 
-console.log('Writing swagger definition to: ', path.join(__dirname, output, 'swagger.json'))
-fs.mkdirSync(path.join(__dirname, '..', output), { recursive: true })
-fs.writeFileSync(path.join(__dirname, '..', output, 'swagger.json'), JSON.stringify(swaggerDefinition, null, 2))
+console.log('Writing swagger definition to: ', path.join(process.cwd(), output, 'swagger.json'))
+fs.mkdirSync(path.join(process.cwd(), output), { recursive: true })
+fs.writeFileSync(path.join(process.cwd(), output, 'swagger.json'), JSON.stringify(swaggerDefinition, null, 2))
