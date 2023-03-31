@@ -9,7 +9,19 @@ import {
 } from './transformers'
 import { JSONSchema, ParsedMethod } from '../types'
 
-export const generateSwagger = ({ methods, schema }: { methods: ParsedMethod[]; schema: JSONSchema }) => {
+export const generateSwagger = ({
+  methods,
+  schema,
+  info,
+}: {
+  methods: ParsedMethod[]
+  schema: JSONSchema
+  info: Partial<{
+    title: string
+    version: string
+    description: string
+  }>
+}) => {
   const methodsGroupedByPath = methods.reduce<Record<string, ParsedMethod[]>>((acc, method) => {
     if (!method.path) {
       return acc
@@ -24,10 +36,10 @@ export const generateSwagger = ({ methods, schema }: { methods: ParsedMethod[]; 
   const document: OpenAPIV3_1.Document = {
     openapi: '3.1.0',
     info: {
-      //TODO: add some options to configure this
       title: 'API',
       version: '1.0.0',
       description: 'API',
+      ...info,
     },
     paths: Object.entries(methodsGroupedByPath).reduce<OpenAPIV3_1.PathsObject>((acc, [path, methods]) => {
       acc[path] = methods.reduce<OpenAPIV3_1.PathItemObject>((acc, method) => {

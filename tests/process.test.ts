@@ -1,7 +1,7 @@
 import fs from 'fs'
 import path from 'path'
 
-import { processProgram } from '../src/processfiles'
+import { processProgram } from '../src'
 import { generateSwagger } from '../src/swagger'
 
 describe('Should process types', () => {

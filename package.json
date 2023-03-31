@@ -5,11 +5,17 @@
   "main": "index.js",
   "author": "Philippe Auriach",
   "license": "MIT",
+  "bin": {
+    "tswag": "bin/tswag.js"
+  },
   "scripts": {
     "test": "jest",
-    "test:watch": "jest --watch"
+    "test:watch": "jest --watch",
+    "build": "rm -rf dist && tsc"
   },
   "dependencies": {
+    "commander": "^10.0.0",
+    "minimist": "^1.2.8",
     "ts-json-schema-generator": "^1.2.0",
     "typescript": "^5.0.2"
   },
