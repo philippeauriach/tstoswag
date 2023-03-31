@@ -10,6 +10,11 @@
 - [ ] write a proper readme
 - [ ] release
 
+## Installation
+```bash
+yarn add tstoswag
+```
+
 ## Usage 
 ```typescript
 @SwaggerPath('/api/users')
