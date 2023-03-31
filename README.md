@@ -17,6 +17,8 @@ yarn add tstoswag
 
 ## Usage 
 ```typescript
+import { SwaggerMethod, SwaggerPath, SwaggerResponse, SwaggerTag, SwaggerBody, SwaggerQueryParams } from 'tstoswag'
+
 @SwaggerPath('/api/users')
 @SwaggerTag('Users', 'List of users')
 export class RouterController {

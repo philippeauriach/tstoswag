@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import ts from 'typescript'
 
-import * as Decorators from './decorators'
 import { parseClass } from './processor/ts-processor'
 import { generateSwagger } from './swagger'
 import { JSONSchema, ParsedMethod } from './types'
@@ -32,4 +31,4 @@ export const processProgram = (files: string[]) => {
 
 export { generateSwagger }
 
-export { Decorators }
+export * from './decorators'
