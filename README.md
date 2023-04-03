@@ -38,6 +38,15 @@ export class RouterController {
 }
 ```
 
+// package.json
+```json
+{
+  "scripts": {
+    "tstoswaglint": "tstoswag -f 'src/index.ts' --tsconfig tsconfig.json --output dist-swagger",
+  }
+}
+```
+
 ## Develop
 
 If needed, the final swagger json file can be pasted in https://editor-next.swagger.io/ to display erros
