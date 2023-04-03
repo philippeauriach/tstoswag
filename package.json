@@ -2,7 +2,7 @@
   "name": "tstoswag",
   "version": "0.1.0",
   "description": "Decorators to generate swagger definition based on typescript typings",
-  "main": "./src/index.ts",
+  "main": "./src/dist/index.js",
   "author": "Philippe Auriach",
   "license": "MIT",
   "repository": {
