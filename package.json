@@ -5,7 +5,6 @@
   "main": "./src/index.ts",
   "author": "Philippe Auriach",
   "license": "MIT",
-  "type": "module",
   "repository": {
     "type": "git",
     "url": "https://github.com/philippeauriach/tstoswag.git"
