@@ -102,6 +102,7 @@ const runCli = () => {
     (0, generate_specs_1.runSpecGeneration)({
         configuration: {
             spec: {
+                name: options.title ?? 'Swagger API',
                 outputDirectory: path_1.default.join(process.cwd(), output),
             },
             routes: {

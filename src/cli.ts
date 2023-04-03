@@ -1,13 +1,9 @@
-import fs from 'fs'
 import path from 'path'
 
 import { program } from 'commander'
-import * as tsj from 'ts-json-schema-generator'
 import * as ts from 'typescript'
-import * as TJS from 'typescript-json-schema'
 
 import { runSpecGeneration } from './generate-specs'
-import { processProgram, generateSwagger } from './index'
 
 export const runCli = () => {
   program.name('tstoswag').description('CLI to generate swagger documentation from typescript files').version('0.0.1')
@@ -98,6 +94,7 @@ export const runCli = () => {
   runSpecGeneration({
     configuration: {
       spec: {
+        name: options.title ?? 'Swagger API',
         outputDirectory: path.join(process.cwd(), output),
       },
       routes: {
