@@ -87,7 +87,7 @@ export const runCli = () => {
   // fs.writeFileSync(path.join(process.cwd(), output, 'swagger.json'), JSON.stringify(swaggerDefinition, null, 2))
 
   // tsoa
-  const tsConfigFileName = path.resolve(process.cwd(), 'tsconfig.json')
+  const tsConfigFileName = path.resolve(process.cwd(), tsconfig)
   const tsConfigFile = ts.readConfigFile(tsConfigFileName, ts.sys.readFile)
   const tsConfigContent = ts.parseJsonConfigFileContent(tsConfigFile.config, ts.sys, process.cwd())
 
