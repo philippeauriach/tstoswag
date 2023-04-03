@@ -95,6 +95,8 @@ export const runCli = () => {
     configuration: {
       spec: {
         name: options.title ?? 'Swagger API',
+        description: options.description ?? 'Swagger API',
+        license: 'private',
         outputDirectory: path.join(process.cwd(), output),
       },
       routes: {

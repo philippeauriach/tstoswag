@@ -118,7 +118,9 @@ export class MethodGenerator {
     const [methodDecorator] = methodDecorators
     const [pathDecorator] = pathDecorators
 
-    this.method = methodDecorator ? (getMethod(methodDecorator, this.current.typeChecker) as any) ?? 'get' : 'get'
+    this.method = methodDecorator
+      ? (getMethod(methodDecorator, this.current.typeChecker)?.toLocaleLowerCase() as any) ?? 'get'
+      : 'get'
     // if you don't pass in a path to the method decorator, we'll just use the base route
     // what if someone has multiple no argument methods of the same type in a single controller?
     // we need to throw an error there
@@ -132,13 +134,14 @@ export class MethodGenerator {
   private getMethodResponses(): Array<Tsoa.Response & { status: number }> {
     const decorators = this.getDecoratorsByIdentifier(this.node, 'SwaggerResponse')
     if (!decorators || !decorators.length) {
-      return []
+      return [{ description: 'Ok', name: '200', status: 200 }]
     }
 
     return decorators.map((decorator) => {
       const [status, description, example, produces] = getDecoratorValues(decorator, this.current.typeChecker)
 
       return {
+        //TODO: default description from the status code
         description: description || '',
         examples: example === undefined ? undefined : [example],
         name: status || '200',
@@ -170,6 +173,10 @@ export class MethodGenerator {
         }
       })
     }
+    if (schema.dataType === 'refAlias') {
+      return this.schemaToParameter(schema.type, inType)
+    }
+    console.log('#### Unhandle schema type: ', schema.dataType, 'inType: ', inType, 'schema: ', schema)
     return []
   }
 
