@@ -23,7 +23,9 @@ export class RouterController {
   static getById() {
     return {}
   }
-
+  /**
+   * @summary Create a user
+   */
   @SwaggerMethod('POST')
   @SwaggerPath('/{id}')
   @SwaggerQueryParams<FilterQueryParams>()
