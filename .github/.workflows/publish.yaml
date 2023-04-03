@@ -1,0 +1,24 @@
+# when creating a tag, build publish the package to npm
+name: Publish to NPM
+on:
+  push:
+    tags:
+      - '*'
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 18
+      - run: yarn install
+      - name: set package version to tag name
+        run: |
+          echo "package version: ${{ github.ref }}"
+          yarn version --new-version ${{ github.ref }} --no-git-tag-version
+      - run: yarn build
+      - run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - run: git push --follow-tags
