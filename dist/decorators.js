@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.SwaggerResponse = exports.SwaggerBody = exports.SwaggerQueryParams = exports.SwaggerMethod = exports.SwaggerTag = exports.SwaggerPath = void 0;
+exports.SwaggerResponse = exports.SwaggerOperationId = exports.SwaggerBody = exports.SwaggerQueryParams = exports.SwaggerMethod = exports.SwaggerTag = exports.SwaggerPath = void 0;
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /**
  * can be used as a decorator on a class or a method
@@ -40,6 +40,12 @@ function SwaggerBody() {
     };
 }
 exports.SwaggerBody = SwaggerBody;
+function SwaggerOperationId(operationId) {
+    return function (target, propertyKey, descriptor) {
+        return descriptor.value;
+    };
+}
+exports.SwaggerOperationId = SwaggerOperationId;
 function SwaggerResponse(status = 200, description) {
     return function (target, propertyKey, descriptor) {
         return descriptor?.value ?? target;

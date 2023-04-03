@@ -231,7 +231,7 @@ class MethodGenerator {
         return true;
     }
     getOperationId() {
-        const opDecorators = this.getDecoratorsByIdentifier(this.node, 'OperationId');
+        const opDecorators = this.getDecoratorsByIdentifier(this.node, 'SwaggerOperationId');
         if (!opDecorators || !opDecorators.length) {
             return undefined;
         }

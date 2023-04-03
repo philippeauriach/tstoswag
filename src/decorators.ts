@@ -37,6 +37,12 @@ export function SwaggerBody<T>() {
   }
 }
 
+export function SwaggerOperationId(operationId: string) {
+  return function (target: unknown, propertyKey: string, descriptor: PropertyDescriptor) {
+    return descriptor.value
+  }
+}
+
 export function SwaggerResponse<T>(status = 200, description?: string) {
   return function (target: unknown, propertyKey?: string, descriptor?: PropertyDescriptor) {
     return descriptor?.value ?? target
