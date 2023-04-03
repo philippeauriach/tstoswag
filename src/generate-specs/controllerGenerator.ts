@@ -1,6 +1,12 @@
 /* eslint-disable @typescript-eslint/prefer-optional-chain */
 import { Tsoa } from '@tsoa/runtime'
-import { isMethodDeclaration, type ClassDeclaration, type CallExpression, type StringLiteral } from 'typescript'
+import {
+  isMethodDeclaration,
+  type ClassDeclaration,
+  type CallExpression,
+  type StringLiteral,
+  isDecorator,
+} from 'typescript'
 
 import { getDecorators, getDecoratorValues, getProduces, getSecurites } from './decoratorUtils'
 import { GenerateMetadataError } from './exceptions'
@@ -14,7 +20,7 @@ export class ControllerGenerator {
   private readonly tags?: string[]
   private readonly security?: Tsoa.Security[]
   private readonly isHidden?: boolean
-  private readonly commonResponses: Tsoa.Response[]
+  private readonly commonResponses: Array<Tsoa.Response & { status: number }>
   private readonly produces?: string[]
 
   constructor(
@@ -73,7 +79,7 @@ export class ControllerGenerator {
   }
 
   private getPath() {
-    const decorators = getDecorators(this.node, (identifier) => identifier.text === 'Path')
+    const decorators = getDecorators(this.node, (identifier) => identifier.text === 'SwaggerPath')
     if (!decorators || !decorators.length) {
       return
     }
@@ -87,7 +93,8 @@ export class ControllerGenerator {
     return decoratorArgument ? `${decoratorArgument.text}` : ''
   }
 
-  private getCommonResponses(): Tsoa.Response[] {
+  //TODO: handle or remove
+  private getCommonResponses(): Array<Tsoa.Response & { status: number }> {
     const decorators = getDecorators(this.node, (identifier) => identifier.text === 'Response')
     if (!decorators || !decorators.length) {
       return []
@@ -105,17 +112,18 @@ export class ControllerGenerator {
         description: description || '',
         examples: example === undefined ? undefined : [example],
         name,
+        status: parseInt(name, 10),
         schema:
           expression.typeArguments && expression.typeArguments.length > 0 && !this.isHidden
             ? new TypeResolver(expression.typeArguments[0], this.current).resolve()
             : undefined,
         headers: getHeaderType(expression.typeArguments, 1, this.current),
-      } as Tsoa.Response
+      }
     })
   }
 
   private getTags() {
-    const decorators = getDecorators(this.node, (identifier) => identifier.text === 'Tags')
+    const decorators = getDecorators(this.node, (identifier) => identifier.text === 'SwaggerTag')
     if (!decorators || !decorators.length) {
       return
     }
@@ -129,6 +137,7 @@ export class ControllerGenerator {
     return expression.arguments.map((a: any) => a.text as string)
   }
 
+  //TODO: handle or remove
   private getSecurity(): Tsoa.Security[] {
     const noSecurityDecorators = getDecorators(this.node, (identifier) => identifier.text === 'NoSecurity')
     const securityDecorators = getDecorators(this.node, (identifier) => identifier.text === 'Security')
@@ -152,6 +161,7 @@ export class ControllerGenerator {
     return securityDecorators.map((d) => getSecurites(d, this.current.typeChecker))
   }
 
+  //TODO: handle or remove
   private getIsHidden(): boolean {
     const hiddenDecorators = getDecorators(this.node, (identifier) => identifier.text === 'Hidden')
     if (!hiddenDecorators || !hiddenDecorators.length) {
@@ -164,6 +174,7 @@ export class ControllerGenerator {
     return true
   }
 
+  //TODO: handle or remove
   private getProduces(): string[] | undefined {
     const produces = getProduces(this.node, this.current.typeChecker)
     return produces.length ? produces : undefined

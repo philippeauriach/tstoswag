@@ -8,7 +8,9 @@ const cleanupRawString = (str: string) => {
   return str.replace(/['"`]/g, '')
 }
 
-export const parsePathDecorator = ({ decorator, checker }: { decorator: ts.Decorator; checker: ts.TypeChecker }) => {
+type ParseDecoratorOptions = { decorator: ts.Decorator; checker: ts.TypeChecker; tsconfigPath: string }
+
+export const parsePathDecorator = ({ decorator, checker }: ParseDecoratorOptions) => {
   if (!ts.isCallExpression(decorator.expression)) {
     return {}
   }
@@ -30,7 +32,7 @@ export const parsePathDecorator = ({ decorator, checker }: { decorator: ts.Decor
   return {}
 }
 
-export const parseTagDecorator = ({ decorator, checker }: { decorator: ts.Decorator; checker: ts.TypeChecker }) => {
+export const parseTagDecorator = ({ decorator, checker }: ParseDecoratorOptions) => {
   if (!ts.isCallExpression(decorator.expression)) {
     return {}
   }
@@ -43,7 +45,7 @@ export const parseTagDecorator = ({ decorator, checker }: { decorator: ts.Decora
   return {}
 }
 
-export const parseMethodDecorator = ({ decorator, checker }: { decorator: ts.Decorator; checker: ts.TypeChecker }) => {
+export const parseMethodDecorator = ({ decorator, checker }: ParseDecoratorOptions) => {
   if (!ts.isCallExpression(decorator.expression)) {
     return {}
   }
@@ -61,10 +63,8 @@ export const parseMethodDecorator = ({ decorator, checker }: { decorator: ts.Dec
 export const parseRequestBodyDecorator = ({
   decorator,
   checker,
-}: {
-  decorator: ts.Decorator
-  checker: ts.TypeChecker
-}): { typeName?: string; isArray?: boolean; jsonSchema?: JSONSchema } | undefined => {
+  tsconfigPath,
+}: ParseDecoratorOptions): { typeName?: string; isArray?: boolean; jsonSchema?: JSONSchema } | undefined => {
   if (!ts.isCallExpression(decorator.expression)) {
     return undefined
   }
@@ -77,17 +77,15 @@ export const parseRequestBodyDecorator = ({
   // so we need to get the type argument from the decorator call expression
   const typeArgument = decorator.expression.typeArguments?.[0]
   if (typeArgument) {
-    return processUnknownParameterizedType(typeArgument, checker)
+    return processUnknownParameterizedType({ typeArgument, checker, tsconfigPath })
   }
 }
 
 export const parseRequestQueryParamsDecorator = ({
   decorator,
   checker,
-}: {
-  decorator: ts.Decorator
-  checker: ts.TypeChecker
-}): { typeName?: string; isArray?: boolean; jsonSchema?: JSONSchema } | undefined => {
+  tsconfigPath,
+}: ParseDecoratorOptions): { typeName?: string; isArray?: boolean; jsonSchema?: JSONSchema } | undefined => {
   if (!ts.isCallExpression(decorator.expression)) {
     return undefined
   }
@@ -100,17 +98,15 @@ export const parseRequestQueryParamsDecorator = ({
   // so we need to get the type argument from the decorator call expression
   const typeArgument = decorator.expression.typeArguments?.[0]
   if (typeArgument) {
-    return processUnknownParameterizedType(typeArgument, checker)
+    return processUnknownParameterizedType({ typeArgument, checker, tsconfigPath })
   }
 }
 
 export const parseResponseDecorator = ({
   decorator,
   checker,
-}: {
-  decorator: ts.Decorator
-  checker: ts.TypeChecker
-}):
+  tsconfigPath,
+}: ParseDecoratorOptions):
   | {
       status: number
       typeName?: string
@@ -138,7 +134,7 @@ export const parseResponseDecorator = ({
   const typeArgument = decorator.expression.typeArguments?.[0]
   let schema: ReturnType<typeof processUnknownParameterizedType> | undefined
   if (typeArgument) {
-    schema = processUnknownParameterizedType(typeArgument, checker)
+    schema = processUnknownParameterizedType({ typeArgument, checker, tsconfigPath })
   }
   return {
     status,

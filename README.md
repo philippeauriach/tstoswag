@@ -51,3 +51,7 @@ export class RouterController {
 ## Develop
 
 If needed, the final swagger json file can be pasted in https://editor-next.swagger.io/ to display erros
+
+## Thanks
+
+Strongly inspired (let's say derived) from the awesome work made in https://github.com/lukeautry/tsoa

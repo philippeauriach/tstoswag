@@ -20,8 +20,8 @@ export function SwaggerTag(...tag: string[]) {
 }
 
 export function SwaggerMethod(method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE') {
-  return function (target: unknown, propertyKey: string, descriptor: PropertyDescriptor) {
-    return descriptor.value
+  return function (target: unknown, propertyKey?: string, descriptor?: PropertyDescriptor) {
+    return descriptor?.value ?? target
   }
 }
 
@@ -37,8 +37,8 @@ export function SwaggerBody<T>() {
   }
 }
 
-export function SwaggerResponse<T>(status = 200) {
-  return function (target: unknown, propertyKey: string, descriptor: PropertyDescriptor) {
-    return descriptor.value
+export function SwaggerResponse<T>(status = 200, description?: string) {
+  return function (target: unknown, propertyKey?: string, descriptor?: PropertyDescriptor) {
+    return descriptor?.value ?? target
   }
 }

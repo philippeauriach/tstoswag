@@ -3,6 +3,7 @@ import path from 'path'
 
 import { program } from 'commander'
 import * as tsj from 'ts-json-schema-generator'
+import * as ts from 'typescript'
 import * as TJS from 'typescript-json-schema'
 
 import { runSpecGeneration } from './generate-specs'
@@ -90,6 +91,10 @@ export const runCli = () => {
   // fs.writeFileSync(path.join(process.cwd(), output, 'swagger.json'), JSON.stringify(swaggerDefinition, null, 2))
 
   // tsoa
+  const tsConfigFileName = path.resolve(process.cwd(), 'tsconfig.json')
+  const tsConfigFile = ts.readConfigFile(tsConfigFileName, ts.sys.readFile)
+  const tsConfigContent = ts.parseJsonConfigFileContent(tsConfigFile.config, ts.sys, process.cwd())
+
   runSpecGeneration({
     configuration: {
       spec: {
@@ -99,6 +104,7 @@ export const runCli = () => {
         routesDir: path.join(process.cwd(), output),
       },
       entryFile: absoluteFilePath,
+      compilerOptions: tsConfigContent.options,
     },
   })
     .then((result) => {

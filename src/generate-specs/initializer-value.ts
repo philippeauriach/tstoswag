@@ -13,7 +13,7 @@ const extractImportSpecifier = (symbol?: ts.Symbol) =>
   undefined
 
 export const getInitializerValue = (
-  initializer?: ts.Expression | ts.ImportSpecifier,
+  initializer?: ts.Expression | ts.ImportSpecifier | ts.Node,
   typeChecker?: ts.TypeChecker,
   type?: Tsoa.Type,
 ): any => {

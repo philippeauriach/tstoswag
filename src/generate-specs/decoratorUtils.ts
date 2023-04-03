@@ -60,6 +60,15 @@ export function getDecoratorValues(decorator: ts.Identifier, typeChecker: ts.Typ
   return expArguments.map((a) => getInitializerValue(a, typeChecker))
 }
 
+export function getDecoratorTypeArgs(decorator: ts.Identifier, typeChecker: ts.TypeChecker): any[] {
+  const expression = decorator.parent as ts.CallExpression
+  const typeArgs = expression.typeArguments
+  if (!typeArgs || !typeArgs.length) {
+    return []
+  }
+  return typeArgs.map((a) => getInitializerValue(a, typeChecker))
+}
+
 export function getSecurites(decorator: ts.Identifier, typeChecker: ts.TypeChecker) {
   const [first, second] = getDecoratorValues(decorator, typeChecker)
   if (isObject(first)) {
@@ -78,6 +87,12 @@ export function isDecorator(node: ts.Node, isMatching: (identifier: ts.Identifie
 
 function isObject(v: any) {
   return typeof v === 'object' && v !== null
+}
+
+export function getMethod(decorator: ts.Identifier, typeChecker: ts.TypeChecker): string {
+  const [method] = getDecoratorValues(decorator, typeChecker)
+
+  return method
 }
 
 export function getPath(decorator: ts.Identifier, typeChecker: ts.TypeChecker): string {

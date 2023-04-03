@@ -1,6 +1,6 @@
 {
   "name": "tstoswag",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Decorators to generate swagger definition based on typescript typings",
   "main": "./src/index.ts",
   "author": "Philippe Auriach",
@@ -18,16 +18,25 @@
     "build": "rm -rf dist && tsc"
   },
   "dependencies": {
+    "@tsoa/runtime": "^5.0.0",
     "commander": "^10.0.0",
+    "deepmerge": "^4.3.1",
+    "glob": "^9.3.4",
+    "handlebars": "^4.7.7",
+    "merge": "^2.1.1",
+    "minimatch": "^8.0.2",
     "minimist": "^1.2.8",
     "ts-json-schema-generator": "^1.2.0",
-    "typescript": "^5.0.2"
+    "typescript": "^5.0.2",
+    "typescript-json-schema": "^0.55.0",
+    "validator": "^13.9.0"
   },
   "devDependencies": {
     "@types/commander": "^2.12.2",
     "@types/jest": "^29.5.0",
     "@types/json-schema": "^7.0.11",
     "@types/node": "^18.15.11",
+    "@types/validator": "^13.7.14",
     "@typescript-eslint/eslint-plugin": "^5.56.0",
     "@typescript-eslint/parser": "^5.56.0",
     "eslint": "^8.36.0",

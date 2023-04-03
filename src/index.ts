@@ -5,28 +5,41 @@ import { parseClass } from './processor/ts-processor'
 import { generateSwagger } from './swagger'
 import { JSONSchema, ParsedMethod } from './types'
 
-export const processProgram = (files: string[]) => {
+export const processProgram = (files: string[], tsconfigPath: string) => {
+  // files might contain a glob pattern, so we need to expand it
+  const expandedFiles = ts.sys.readDirectory(process.cwd(), files, undefined, ['node_modules'])
+  console.log('Expanded files: ', expandedFiles)
+
   const program: ts.Program = ts.createProgram(files, {})
   const checker: ts.TypeChecker = program.getTypeChecker()
 
-  const myComponentSourceFile = program.getSourceFile(files[0])!
+  const allFiles = program.getSourceFiles()
+
+  const allSchemas: JSONSchema = {}
   const parsedMethods: ParsedMethod[] = []
-  if (myComponentSourceFile) {
-    const allSchemas: JSONSchema = {}
-    ts.forEachChild(myComponentSourceFile, (node) => {
-      if (ts.isClassDeclaration(node)) {
-        const { methods, allSchemas: newAllSchemas } = parseClass(node, checker, allSchemas)
-        allSchemas.definitions = {
-          ...allSchemas.definitions,
-          ...newAllSchemas.definitions,
+  for (const file of allFiles) {
+    const myComponentSourceFile = file
+    if (myComponentSourceFile) {
+      console.log('Processing file: ', myComponentSourceFile.fileName)
+      ts.forEachChild(myComponentSourceFile, (node) => {
+        if (ts.isClassDeclaration(node)) {
+          try {
+            const { methods, allSchemas: newAllSchemas } = parseClass(node, checker, allSchemas, tsconfigPath)
+            allSchemas.definitions = {
+              ...allSchemas.definitions,
+              ...newAllSchemas.definitions,
+            }
+            parsedMethods.push(...methods)
+          } catch (e) {
+            console.log('Error while processing file', myComponentSourceFile.fileName, e)
+          }
         }
-        parsedMethods.push(...methods)
-      }
-    })
-    return { parsedMethods, allSchemas }
-  } else {
-    console.log('Given source file not found')
+      })
+    } else {
+      console.log('Given source file not found')
+    }
   }
+  return { parsedMethods, allSchemas }
 }
 
 export { generateSwagger }

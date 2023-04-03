@@ -18,6 +18,7 @@ export const parseClass = (
   node: ts.Node,
   checker: ts.TypeChecker,
   allSchemas: JSONSchema,
+  tsconfigPath: string,
 ): { methods: ParsedMethod[]; allSchemas: JSONSchema } => {
   if (!ts.isClassDeclaration(node)) {
     return { methods: [], allSchemas }
@@ -30,12 +31,12 @@ export const parseClass = (
   // first, check if the class has a SwaggerPath or SwaggerTag decorator
   const decorators = ts.getDecorators(node)
   decorators?.forEach((decorator) => {
-    const { path, pathParams } = parsePathDecorator({ decorator, checker })
+    const { path, pathParams } = parsePathDecorator({ decorator, checker, tsconfigPath })
     if (path) {
       classData.mainPath = path
       classData.mainPathParams = pathParams
     }
-    const { tags } = parseTagDecorator({ decorator, checker })
+    const { tags } = parseTagDecorator({ decorator, checker, tsconfigPath })
     if (tags) {
       classData.tags = tags
     }
@@ -45,7 +46,8 @@ export const parseClass = (
   // list all methods and check if they have a SwaggerMethod decorator
   ts.forEachChild(node, (node) => {
     if (ts.isMethodDeclaration(node)) {
-      const { parsedMethod, allSchemas: newAllSchemas } = parseMethod(node, checker, updatedAllSchemas) ?? {}
+      const { parsedMethod, allSchemas: newAllSchemas } =
+        parseMethod(node, checker, updatedAllSchemas, tsconfigPath) ?? {}
       if (newAllSchemas) {
         updatedAllSchemas.definitions = {
           ...updatedAllSchemas.definitions,
@@ -54,8 +56,9 @@ export const parseClass = (
       }
       if (parsedMethod) {
         if (!parsedMethod.path && !classData.mainPath) {
-          console.log('Missing path for method', parseMethod)
-          throw new Error('No path found for method')
+          console.log('Missing path for method', parsedMethod)
+          return
+          //throw new Error('No path found for method')
         }
         if (classData.mainPath) {
           parsedMethod.path = (classData.mainPath ?? '') + (parsedMethod.path ?? '')
@@ -75,6 +78,7 @@ export const parseMethod = (
   node: ts.Node,
   checker: ts.TypeChecker,
   allSchemas: JSONSchema,
+  tsconfigPath: string,
 ): { parsedMethod: ParsedMethod; allSchemas: JSONSchema } | undefined => {
   if (!ts.isMethodDeclaration(node)) {
     return
@@ -84,12 +88,13 @@ export const parseMethod = (
   let result: ParsedMethod = {}
 
   decorators?.forEach((decorator) => {
-    const pathData = parsePathDecorator({ decorator, checker })
-    const methodData = parseMethodDecorator({ decorator, checker })
-    const requestQueryParamsData = parseRequestQueryParamsDecorator({ decorator, checker })
-    const requestBodyData = parseRequestBodyDecorator({ decorator, checker })
-    const responseData = parseResponseDecorator({ decorator, checker })
-    const tagData = parseTagDecorator({ decorator, checker })
+    const opts = { decorator, checker, tsconfigPath }
+    const pathData = parsePathDecorator(opts)
+    const methodData = parseMethodDecorator(opts)
+    const requestQueryParamsData = parseRequestQueryParamsDecorator(opts)
+    const requestBodyData = parseRequestBodyDecorator(opts)
+    const responseData = parseResponseDecorator(opts)
+    const tagData = parseTagDecorator(opts)
     allSchemas.definitions = {
       ...allSchemas.definitions,
       ...requestQueryParamsData?.jsonSchema?.definitions,
@@ -143,7 +148,15 @@ export const processTypeWithJsonSchemaGenerator = ({
   return res
 }
 
-export const processUnknownParameterizedType = (typeArgument: ts.TypeNode, checker: ts.TypeChecker) => {
+export const processUnknownParameterizedType = ({
+  typeArgument,
+  checker,
+  tsconfigPath,
+}: {
+  typeArgument: ts.TypeNode
+  checker: ts.TypeChecker
+  tsconfigPath: string
+}) => {
   let isArray = false
   let type = checker.getTypeAtLocation(typeArgument)
   let rawType = checker.typeToString(type)
@@ -173,12 +186,13 @@ export const processUnknownParameterizedType = (typeArgument: ts.TypeNode, check
       typeName,
       isArray,
       jsonSchema: processTypeWithJsonSchemaGenerator({
-        filePath: type.aliasSymbol!.declarations![0].getSourceFile().fileName,
+        filePath: typeArgument.getSourceFile().fileName,
         typeName: rawType,
+        tsconfigPath,
       }),
     }
   }
   // unknown type, we need to process it ourselves
-  console.log('Unsuported type', type.aliasSymbol?.escapedName, rawType, `kind= ${typeArgument.kind}`)
+  console.log('Unsuported type', type.aliasSymbol?.escapedName, rawType, typeName, `kind= ${typeArgument.kind}`)
   throw new Error('This type is not supported yet!')
 }

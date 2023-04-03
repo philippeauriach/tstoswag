@@ -73,7 +73,11 @@ export class MetadataGenerator {
       }
 
       forEachChild(sf, (node) => {
-        if (isClassDeclaration(node) && getDecorators(node, (identifier) => identifier.text === 'Route').length) {
+        const decoratorsForController = ['SwaggerPath', 'SwaggerTag']
+        if (
+          isClassDeclaration(node) &&
+          getDecorators(node, (identifier) => decoratorsForController.includes(identifier.text)).length
+        ) {
           this.controllerNodes.push(node)
         }
       })
@@ -252,6 +256,7 @@ export class MetadataGenerator {
     if (this.controllerNodes.length === 0) {
       throw new Error('no controllers found, check tsoa configuration')
     }
+    console.log(`Generating metadata for ${this.controllerNodes.length} controllers`)
     return this.controllerNodes
       .map((classDeclaration) => new ControllerGenerator(classDeclaration, this, this.rootSecurity))
       .filter((generator) => generator.IsValid())
