@@ -1,0 +1,1 @@
+export declare const defaultResponseDescriptionFromCode: (code: string) => "OK" | "Created" | "No Content" | "Bad Request" | "Unauthorized" | "Forbidden" | "Not Found" | "Conflict" | "I'm a teapot" | "Internal Server Error" | undefined;

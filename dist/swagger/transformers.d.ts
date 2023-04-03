@@ -1,0 +1,10 @@
+import { JSONSchema7, JSONSchema7Definition } from 'json-schema';
+import { OpenAPIV3, OpenAPIV3_1 } from 'openapi-types';
+import { JSONSchema, ParsedMethod } from '../types';
+export declare const generatePathParams: (pathParams?: string[]) => (OpenAPIV3_1.ParameterObject | OpenAPIV3_1.ReferenceObject)[];
+export declare const generateQueryParams: (queryParam: ParsedMethod['requestQueryParams'] | undefined, schema: JSONSchema) => (OpenAPIV3_1.ParameterObject | OpenAPIV3_1.ReferenceObject)[];
+export declare const generateRequestBody: (requestBody?: ParsedMethod['requestBody']) => (OpenAPIV3_1.ReferenceObject | OpenAPIV3.RequestBodyObject) | undefined;
+export declare const generateResponses: (responses?: ParsedMethod['responses']) => OpenAPIV3.ResponsesObject & OpenAPIV3_1.ResponsesObject;
+export declare const schemaPropertyToOpenAPIV3Property: (property?: JSONSchema7) => OpenAPIV3.SchemaObject | undefined;
+export declare const getSwaggerSchemaFromDefinition: (definition: JSONSchema7Definition) => OpenAPIV3_1.SchemaObject | OpenAPIV3_1.ReferenceObject | undefined;
+export declare const generateSwaggerSchemas: (schema: JSONSchema) => OpenAPIV3_1.ComponentsObject['schemas'];
