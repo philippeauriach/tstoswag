@@ -13,10 +13,10 @@ jobs:
         with:
           node-version: 18
       - run: yarn install
-      - name: set package version to tag name
+      - name: set package version to tag name (remove refs tags)
         run: |
-          echo "package version: ${{ github.ref }}"
-          yarn version --new-version ${{ github.ref }} --no-git-tag-version
+          echo "tag name: ${{ github.ref_name }}"
+          yarn version --new-version ${{ github.ref_name }} --no-git-tag-version
       - run: yarn build
       - run: npm publish
         env:
