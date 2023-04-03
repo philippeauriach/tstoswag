@@ -9,7 +9,7 @@ const ts_json_schema_generator_1 = require("ts-json-schema-generator");
 const typescript_1 = __importDefault(require("typescript"));
 const decoratorsParser_1 = require("./decoratorsParser");
 const cacheByFilePath = new Map();
-const parseClass = (node, checker, allSchemas) => {
+const parseClass = (node, checker, allSchemas, tsconfigPath) => {
     if (!typescript_1.default.isClassDeclaration(node)) {
         return { methods: [], allSchemas };
     }
@@ -17,12 +17,12 @@ const parseClass = (node, checker, allSchemas) => {
     // first, check if the class has a SwaggerPath or SwaggerTag decorator
     const decorators = typescript_1.default.getDecorators(node);
     decorators?.forEach((decorator) => {
-        const { path, pathParams } = (0, decoratorsParser_1.parsePathDecorator)({ decorator, checker });
+        const { path, pathParams } = (0, decoratorsParser_1.parsePathDecorator)({ decorator, checker, tsconfigPath });
         if (path) {
             classData.mainPath = path;
             classData.mainPathParams = pathParams;
         }
-        const { tags } = (0, decoratorsParser_1.parseTagDecorator)({ decorator, checker });
+        const { tags } = (0, decoratorsParser_1.parseTagDecorator)({ decorator, checker, tsconfigPath });
         if (tags) {
             classData.tags = tags;
         }
@@ -32,7 +32,7 @@ const parseClass = (node, checker, allSchemas) => {
     // list all methods and check if they have a SwaggerMethod decorator
     typescript_1.default.forEachChild(node, (node) => {
         if (typescript_1.default.isMethodDeclaration(node)) {
-            const { parsedMethod, allSchemas: newAllSchemas } = (0, exports.parseMethod)(node, checker, updatedAllSchemas) ?? {};
+            const { parsedMethod, allSchemas: newAllSchemas } = (0, exports.parseMethod)(node, checker, updatedAllSchemas, tsconfigPath) ?? {};
             if (newAllSchemas) {
                 updatedAllSchemas.definitions = {
                     ...updatedAllSchemas.definitions,
@@ -41,8 +41,9 @@ const parseClass = (node, checker, allSchemas) => {
             }
             if (parsedMethod) {
                 if (!parsedMethod.path && !classData.mainPath) {
-                    console.log('Missing path for method', exports.parseMethod);
-                    throw new Error('No path found for method');
+                    console.log('Missing path for method', parsedMethod);
+                    return;
+                    //throw new Error('No path found for method')
                 }
                 if (classData.mainPath) {
                     parsedMethod.path = (classData.mainPath ?? '') + (parsedMethod.path ?? '');
@@ -58,7 +59,7 @@ const parseClass = (node, checker, allSchemas) => {
     return { methods: results, allSchemas: updatedAllSchemas };
 };
 exports.parseClass = parseClass;
-const parseMethod = (node, checker, allSchemas) => {
+const parseMethod = (node, checker, allSchemas, tsconfigPath) => {
     if (!typescript_1.default.isMethodDeclaration(node)) {
         return;
     }
@@ -66,12 +67,13 @@ const parseMethod = (node, checker, allSchemas) => {
     const decorators = typescript_1.default.getDecorators(node);
     let result = {};
     decorators?.forEach((decorator) => {
-        const pathData = (0, decoratorsParser_1.parsePathDecorator)({ decorator, checker });
-        const methodData = (0, decoratorsParser_1.parseMethodDecorator)({ decorator, checker });
-        const requestQueryParamsData = (0, decoratorsParser_1.parseRequestQueryParamsDecorator)({ decorator, checker });
-        const requestBodyData = (0, decoratorsParser_1.parseRequestBodyDecorator)({ decorator, checker });
-        const responseData = (0, decoratorsParser_1.parseResponseDecorator)({ decorator, checker });
-        const tagData = (0, decoratorsParser_1.parseTagDecorator)({ decorator, checker });
+        const opts = { decorator, checker, tsconfigPath };
+        const pathData = (0, decoratorsParser_1.parsePathDecorator)(opts);
+        const methodData = (0, decoratorsParser_1.parseMethodDecorator)(opts);
+        const requestQueryParamsData = (0, decoratorsParser_1.parseRequestQueryParamsDecorator)(opts);
+        const requestBodyData = (0, decoratorsParser_1.parseRequestBodyDecorator)(opts);
+        const responseData = (0, decoratorsParser_1.parseResponseDecorator)(opts);
+        const tagData = (0, decoratorsParser_1.parseTagDecorator)(opts);
         allSchemas.definitions = {
             ...allSchemas.definitions,
             ...requestQueryParamsData?.jsonSchema?.definitions,
@@ -117,7 +119,7 @@ const processTypeWithJsonSchemaGenerator = ({ filePath, tsconfigPath, typeName, 
     return res;
 };
 exports.processTypeWithJsonSchemaGenerator = processTypeWithJsonSchemaGenerator;
-const processUnknownParameterizedType = (typeArgument, checker) => {
+const processUnknownParameterizedType = ({ typeArgument, checker, tsconfigPath, }) => {
     let isArray = false;
     let type = checker.getTypeAtLocation(typeArgument);
     let rawType = checker.typeToString(type);
@@ -147,13 +149,14 @@ const processUnknownParameterizedType = (typeArgument, checker) => {
             typeName,
             isArray,
             jsonSchema: (0, exports.processTypeWithJsonSchemaGenerator)({
-                filePath: type.aliasSymbol.declarations[0].getSourceFile().fileName,
+                filePath: typeArgument.getSourceFile().fileName,
                 typeName: rawType,
+                tsconfigPath,
             }),
         };
     }
     // unknown type, we need to process it ourselves
-    console.log('Unsuported type', type.aliasSymbol?.escapedName, rawType, `kind= ${typeArgument.kind}`);
+    console.log('Unsuported type', type.aliasSymbol?.escapedName, rawType, typeName, `kind= ${typeArgument.kind}`);
     throw new Error('This type is not supported yet!');
 };
 exports.processUnknownParameterizedType = processUnknownParameterizedType;

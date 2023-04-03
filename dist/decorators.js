@@ -24,7 +24,7 @@ function SwaggerTag(...tag) {
 exports.SwaggerTag = SwaggerTag;
 function SwaggerMethod(method) {
     return function (target, propertyKey, descriptor) {
-        return descriptor.value;
+        return descriptor?.value ?? target;
     };
 }
 exports.SwaggerMethod = SwaggerMethod;
@@ -40,9 +40,9 @@ function SwaggerBody() {
     };
 }
 exports.SwaggerBody = SwaggerBody;
-function SwaggerResponse(status = 200) {
+function SwaggerResponse(status = 200, description) {
     return function (target, propertyKey, descriptor) {
-        return descriptor.value;
+        return descriptor?.value ?? target;
     };
 }
 exports.SwaggerResponse = SwaggerResponse;

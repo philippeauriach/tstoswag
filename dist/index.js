@@ -23,28 +23,40 @@ const typescript_1 = __importDefault(require("typescript"));
 const ts_processor_1 = require("./processor/ts-processor");
 const swagger_1 = require("./swagger");
 Object.defineProperty(exports, "generateSwagger", { enumerable: true, get: function () { return swagger_1.generateSwagger; } });
-const processProgram = (files) => {
+const processProgram = (files, tsconfigPath) => {
+    // files might contain a glob pattern, so we need to expand it
+    const expandedFiles = typescript_1.default.sys.readDirectory(process.cwd(), files, undefined, ['node_modules']);
+    console.log('Expanded files: ', expandedFiles);
     const program = typescript_1.default.createProgram(files, {});
     const checker = program.getTypeChecker();
-    const myComponentSourceFile = program.getSourceFile(files[0]);
+    const allFiles = program.getSourceFiles();
+    const allSchemas = {};
     const parsedMethods = [];
-    if (myComponentSourceFile) {
-        const allSchemas = {};
-        typescript_1.default.forEachChild(myComponentSourceFile, (node) => {
-            if (typescript_1.default.isClassDeclaration(node)) {
-                const { methods, allSchemas: newAllSchemas } = (0, ts_processor_1.parseClass)(node, checker, allSchemas);
-                allSchemas.definitions = {
-                    ...allSchemas.definitions,
-                    ...newAllSchemas.definitions,
-                };
-                parsedMethods.push(...methods);
-            }
-        });
-        return { parsedMethods, allSchemas };
+    for (const file of allFiles) {
+        const myComponentSourceFile = file;
+        if (myComponentSourceFile) {
+            console.log('Processing file: ', myComponentSourceFile.fileName);
+            typescript_1.default.forEachChild(myComponentSourceFile, (node) => {
+                if (typescript_1.default.isClassDeclaration(node)) {
+                    try {
+                        const { methods, allSchemas: newAllSchemas } = (0, ts_processor_1.parseClass)(node, checker, allSchemas, tsconfigPath);
+                        allSchemas.definitions = {
+                            ...allSchemas.definitions,
+                            ...newAllSchemas.definitions,
+                        };
+                        parsedMethods.push(...methods);
+                    }
+                    catch (e) {
+                        console.log('Error while processing file', myComponentSourceFile.fileName, e);
+                    }
+                }
+            });
+        }
+        else {
+            console.log('Given source file not found');
+        }
     }
-    else {
-        console.log('Given source file not found');
-    }
+    return { parsedMethods, allSchemas };
 };
 exports.processProgram = processProgram;
 __exportStar(require("./decorators"), exports);

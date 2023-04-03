@@ -60,7 +60,7 @@ const parseMethodDecorator = ({ decorator, checker }) => {
     return {};
 };
 exports.parseMethodDecorator = parseMethodDecorator;
-const parseRequestBodyDecorator = ({ decorator, checker, }) => {
+const parseRequestBodyDecorator = ({ decorator, checker, tsconfigPath, }) => {
     if (!typescript_1.default.isCallExpression(decorator.expression)) {
         return undefined;
     }
@@ -73,11 +73,11 @@ const parseRequestBodyDecorator = ({ decorator, checker, }) => {
     // so we need to get the type argument from the decorator call expression
     const typeArgument = decorator.expression.typeArguments?.[0];
     if (typeArgument) {
-        return (0, ts_processor_1.processUnknownParameterizedType)(typeArgument, checker);
+        return (0, ts_processor_1.processUnknownParameterizedType)({ typeArgument, checker, tsconfigPath });
     }
 };
 exports.parseRequestBodyDecorator = parseRequestBodyDecorator;
-const parseRequestQueryParamsDecorator = ({ decorator, checker, }) => {
+const parseRequestQueryParamsDecorator = ({ decorator, checker, tsconfigPath, }) => {
     if (!typescript_1.default.isCallExpression(decorator.expression)) {
         return undefined;
     }
@@ -90,11 +90,11 @@ const parseRequestQueryParamsDecorator = ({ decorator, checker, }) => {
     // so we need to get the type argument from the decorator call expression
     const typeArgument = decorator.expression.typeArguments?.[0];
     if (typeArgument) {
-        return (0, ts_processor_1.processUnknownParameterizedType)(typeArgument, checker);
+        return (0, ts_processor_1.processUnknownParameterizedType)({ typeArgument, checker, tsconfigPath });
     }
 };
 exports.parseRequestQueryParamsDecorator = parseRequestQueryParamsDecorator;
-const parseResponseDecorator = ({ decorator, checker, }) => {
+const parseResponseDecorator = ({ decorator, checker, tsconfigPath, }) => {
     if (!typescript_1.default.isCallExpression(decorator.expression)) {
         return undefined;
     }
@@ -115,7 +115,7 @@ const parseResponseDecorator = ({ decorator, checker, }) => {
     const typeArgument = decorator.expression.typeArguments?.[0];
     let schema;
     if (typeArgument) {
-        schema = (0, ts_processor_1.processUnknownParameterizedType)(typeArgument, checker);
+        schema = (0, ts_processor_1.processUnknownParameterizedType)({ typeArgument, checker, tsconfigPath });
     }
     return {
         status,
